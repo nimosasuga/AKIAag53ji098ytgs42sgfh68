@@ -10,14 +10,14 @@
 </head>
 
 <body class="min-h-full bg-slate-950 text-slate-100 antialiased">
-    <div class="min-h-screen">
+    <div class="akta-page-shell min-h-screen">
         @include('akta.partials.sidebar')
 
         <div class="min-h-screen lg:pl-72">
             @include('akta.partials.topbar')
 
             <main class="px-4 py-6 sm:px-6 lg:px-8">
-                <div class="mx-auto max-w-7xl">
+                <div class="akta-page-content mx-auto max-w-7xl">
                     @yield('content')
                 </div>
             </main>
