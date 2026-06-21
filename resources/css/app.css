@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+    background: rgb(2 6 23);
+    scrollbar-gutter: stable;
+}
+
+body {
+    overflow-y: scroll;
+}
+
 .akta-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgb(51 65 85) transparent;
@@ -27,4 +36,107 @@
 
 .akta-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgb(71 85 105);
+}
+
+.akta-sidebar-nav {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.akta-mobile-menu-panel {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        max-height 220ms cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 160ms ease-out,
+        padding-top 220ms cubic-bezier(0.4, 0, 0.2, 1),
+        padding-bottom 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.akta-mobile-menu-panel.is-open {
+    max-height: 70vh;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .akta-page-shell {
+        animation: akta-page-enter 180ms ease-out both;
+    }
+
+    .akta-sidebar-nav {
+        opacity: 0;
+        transform: translateX(-4px);
+        transition:
+            opacity 180ms ease-out,
+            transform 180ms ease-out;
+        will-change: opacity, transform;
+    }
+
+    .akta-sidebar-nav.is-ready {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .akta-page-content {
+        animation: akta-content-enter 180ms ease-out both;
+    }
+
+    .akta-menu-item {
+        transition-property: background-color, border-color, color, box-shadow, transform;
+        transition-duration: 180ms;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+    }
+
+    .akta-menu-item:hover {
+        transform: translateX(2px);
+    }
+
+    .akta-menu-item[data-active-menu="true"] {
+        transform: translateX(0);
+    }
+
+    .akta-is-navigating .akta-page-content {
+        opacity: 0.96;
+        transform: translateY(2px);
+        transition:
+            opacity 120ms ease-out,
+            transform 120ms ease-out;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .akta-sidebar-nav,
+    .akta-sidebar-nav.is-ready,
+    .akta-page-content,
+    .akta-menu-item {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+    }
+}
+
+@keyframes akta-page-enter {
+    from {
+        opacity: 0.98;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes akta-content-enter {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
