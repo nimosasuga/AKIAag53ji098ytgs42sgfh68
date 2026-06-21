@@ -183,5 +183,9 @@
 @endsection
 
 @push('scripts')
-@vite(['resources/js/akta-plan-audit.js', 'resources/js/akta-plan-audit-modal.js'])
+@vite([
+    'resources/js/akta-plan-audit.js',
+    'resources/js/akta-plan-audit-modal.js',
+    'resources/js/akta-plan-audit-modal-release.js',
+])
 @endpush
