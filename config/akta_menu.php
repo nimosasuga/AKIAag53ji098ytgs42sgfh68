@@ -32,10 +32,17 @@ return [
             'admin_only' => false,
         ],
         [
-            'label' => 'Audit',
-            'route' => 'akta.audit',
-            'path' => '/akta/audit',
-            'code' => 'AU',
+            'label' => 'Audit Kas',
+            'route' => 'akta.audit-detail.kas',
+            'path' => '/akta/audit-detail/kas',
+            'code' => 'AK',
+            'admin_only' => false,
+        ],
+        [
+            'label' => 'Audit Bank',
+            'route' => 'akta.audit-detail.bank',
+            'path' => '/akta/audit-detail/bank',
+            'code' => 'AB',
             'admin_only' => false,
         ],
         [
