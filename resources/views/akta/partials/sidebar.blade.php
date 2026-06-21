@@ -17,15 +17,14 @@ $menuItems = app(\App\Services\AktaMenuService::class)->visibleItems();
             </div>
         </div>
 
-        <nav id="desktopSidebarNav" class="akta-scrollbar flex-1 space-y-1 overflow-y-auto px-3 pt-4 pb-28 scroll-pb-28"
-            style="visibility: hidden;">
+        <nav id="desktopSidebarNav" class="akta-scrollbar akta-sidebar-nav flex-1 space-y-1 overflow-y-auto px-3 pt-4 pb-28 scroll-pb-28">
             @foreach ($menuItems as $item)
             @php
             $isActive = request()->routeIs($item['route']);
             @endphp
 
             <a href="{{ route($item['route']) }}" data-admin-only="{{ $item['admin_only'] ? 'true' : 'false' }}"
-                data-active-menu="{{ $isActive ? 'true' : 'false' }}" class="akta-menu-item {{ $item['admin_only'] ? 'hidden' : '' }} group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition
+                data-active-menu="{{ $isActive ? 'true' : 'false' }}" class="akta-menu-item {{ $item['admin_only'] ? 'hidden' : '' }} group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium
                     {{ $isActive
                         ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
                         : 'text-slate-300 hover:bg-slate-900 hover:text-white'
@@ -51,63 +50,71 @@ $menuItems = app(\App\Services\AktaMenuService::class)->visibleItems();
 
         <script>
             (() => {
-        const SESSION_KEY = 'akta_session';
-        const SIDEBAR_SCROLL_KEY = 'akta_sidebar_scroll_top';
+                const SESSION_KEY = 'akta_session';
+                const SIDEBAR_SCROLL_KEY = 'akta_sidebar_scroll_top';
+                const nav = document.getElementById('desktopSidebarNav');
 
-        const nav = document.getElementById('desktopSidebarNav');
+                if (!nav) {
+                    return;
+                }
 
-        if (!nav) {
-            return;
-        }
+                let role = null;
 
-        let role = null;
+                try {
+                    const session = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+                    role = session?.user?.role || null;
+                } catch {
+                    role = null;
+                }
 
-        try {
-            const session = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
-            role = session?.user?.role || null;
-        } catch {
-            role = null;
-        }
+                const isAdmin = role === 'admin';
 
-        const isAdmin = role === 'admin';
+                document.querySelectorAll('[data-admin-only="true"]').forEach((element) => {
+                    if (isAdmin) {
+                        element.classList.remove('hidden');
+                    } else {
+                        element.classList.add('hidden');
+                    }
+                });
 
-        document.querySelectorAll('[data-admin-only="true"]').forEach((element) => {
-            if (isAdmin) {
-                element.classList.remove('hidden');
-            } else {
-                element.classList.add('hidden');
-            }
-        });
+                const maxSafeScroll = () => Math.max(0, nav.scrollHeight - nav.clientHeight);
+                const applySafeScrollTop = (value) => {
+                    const scrollTop = Number(value || 0);
 
-        const savedScrollTop = Number(sessionStorage.getItem(SIDEBAR_SCROLL_KEY) || 0);
+                    if (!Number.isFinite(scrollTop)) {
+                        return;
+                    }
 
-        if (savedScrollTop > 0) {
-            nav.scrollTop = savedScrollTop;
-        }
+                    nav.scrollTop = Math.min(Math.max(0, scrollTop), maxSafeScroll());
+                };
 
-        const activeMenu = nav.querySelector('[data-active-menu="true"]');
+                const savedScrollTop = Number(sessionStorage.getItem(SIDEBAR_SCROLL_KEY) || 0);
+                const hasSavedScrollTop = Number.isFinite(savedScrollTop) && savedScrollTop > 0;
 
-        if (activeMenu) {
-            const navRect = nav.getBoundingClientRect();
-            const activeRect = activeMenu.getBoundingClientRect();
+                if (hasSavedScrollTop) {
+                    applySafeScrollTop(savedScrollTop);
+                } else {
+                    const activeMenu = nav.querySelector('[data-active-menu="true"]');
 
-            const bottomSafeArea = 96;
-            const isTooLow = activeRect.bottom > (navRect.bottom - bottomSafeArea);
-            const isTooHigh = activeRect.top < navRect.top;
+                    if (activeMenu) {
+                        const navRect = nav.getBoundingClientRect();
+                        const activeRect = activeMenu.getBoundingClientRect();
+                        const bottomSafeArea = 96;
+                        const isTooLow = activeRect.bottom > (navRect.bottom - bottomSafeArea);
+                        const isTooHigh = activeRect.top < navRect.top;
 
-            if (isTooLow || isTooHigh) {
-                const targetTop =
-                    nav.scrollTop +
-                    (activeRect.top - navRect.top) -
-                    80;
+                        if (isTooLow || isTooHigh) {
+                            applySafeScrollTop(
+                                nav.scrollTop + (activeRect.top - navRect.top) - 80,
+                            );
+                        }
+                    }
+                }
 
-                nav.scrollTop = Math.max(0, targetTop);
-                sessionStorage.setItem(SIDEBAR_SCROLL_KEY, String(nav.scrollTop));
-            }
-        }
-
-        nav.style.visibility = 'visible';
-    })();
+                window.requestAnimationFrame(() => {
+                    nav.classList.add('is-ready');
+                });
+            })();
         </script>
 
         <div class="border-t border-slate-800 px-5 py-4">
@@ -128,16 +135,16 @@ $menuItems = app(\App\Services\AktaMenuService::class)->visibleItems();
                 <div class="text-xs text-slate-400">Audit Honda Dealer</div>
             </div>
 
-            <button id="mobileMenuButton" type="button"
-                class="rounded-xl border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-200">
+            <button id="mobileMenuButton" type="button" aria-controls="mobileMenuPanel" aria-expanded="false"
+                class="rounded-xl border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:border-blue-500 hover:bg-blue-500/10 hover:text-white">
                 Menu
             </button>
         </div>
     </div>
 
     <div id="mobileMenuPanel" data-scrollable-menu="true"
-        class="akta-scrollbar hidden max-h-[70vh] overflow-y-auto border-b border-slate-800 bg-slate-950 px-3 py-3">
-        <nav class="grid gap-1">
+        class="akta-scrollbar akta-mobile-menu-panel overflow-y-auto border-b border-slate-800 bg-slate-950 px-3">
+        <nav class="grid gap-1 py-3">
             @foreach ($menuItems as $item)
             @php
             $isActive = request()->routeIs($item['route']);
