@@ -71,10 +71,10 @@
 </section>
 
 <div id="planModal"
-    class="akta-modal-backdrop fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-black/70 px-4 py-6 backdrop-blur-sm sm:items-center sm:py-8"
+    class="fixed inset-0 z-50 hidden items-start justify-center overflow-y-auto bg-black/70 px-4 py-6 opacity-0 backdrop-blur-sm transition-opacity duration-200 ease-out sm:items-center sm:py-8"
     role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="planModalTitle">
     <div id="planModalPanel"
-        class="akta-modal-panel my-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl">
+        class="my-auto w-full max-w-3xl translate-y-3 scale-[0.98] overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 opacity-0 shadow-2xl transition duration-200 ease-out">
         <div class="flex items-start justify-between gap-4 border-b border-slate-800 px-5 py-4">
             <div>
                 <h3 id="planModalTitle" class="text-lg font-bold text-slate-100">Tambah Plan Audit</h3>
