@@ -118,13 +118,22 @@ function setupMobileMenu() {
         return;
     }
 
+    const setOpen = (isOpen) => {
+        panel.classList.toggle("is-open", isOpen);
+        button.setAttribute("aria-expanded", String(isOpen));
+    };
+
     button.addEventListener("click", () => {
-        panel.classList.toggle("hidden");
+        setOpen(!panel.classList.contains("is-open"));
     });
 }
 
+function getSidebarNav() {
+    return document.getElementById("desktopSidebarNav");
+}
+
 function setupSidebarScrollMemory() {
-    const sidebarNav = document.getElementById("desktopSidebarNav");
+    const sidebarNav = getSidebarNav();
 
     if (!sidebarNav) {
         return;
@@ -143,13 +152,41 @@ function setupSidebarScrollMemory() {
     sidebarNav.addEventListener("scroll", saveScroll, { passive: true });
 
     sidebarNav.querySelectorAll("a").forEach((link) => {
-        link.addEventListener("pointerdown", saveScroll);
+        link.addEventListener("pointerdown", saveScroll, { passive: true });
         link.addEventListener("mousedown", saveScroll);
         link.addEventListener("touchstart", saveScroll, { passive: true });
         link.addEventListener("click", saveScroll);
     });
 
     window.addEventListener("beforeunload", saveScroll);
+}
+
+function setupSmoothNavigation() {
+    const links = document.querySelectorAll("a.akta-menu-item[href]");
+
+    links.forEach((link) => {
+        link.addEventListener("click", (event) => {
+            if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+            ) {
+                return;
+            }
+
+            const targetUrl = new URL(link.href, window.location.origin);
+            const currentUrl = new URL(window.location.href);
+
+            if (targetUrl.href === currentUrl.href) {
+                return;
+            }
+
+            document.documentElement.classList.add("akta-is-navigating");
+        });
+    });
 }
 
 function guardAdminOnlyPage(user) {
@@ -170,6 +207,7 @@ function guardAdminOnlyPage(user) {
 document.addEventListener("DOMContentLoaded", async () => {
     setupMobileMenu();
     setupSidebarScrollMemory();
+    setupSmoothNavigation();
 
     const session = getSession();
 
